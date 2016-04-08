@@ -1,7 +1,7 @@
 import sys
 
 from modules.reader import getConfig
-from modules.sqlclient import SQLClient
+from modules.mysqlclient import MySQLClient
 
 if __name__ == '__main__':
     result, conf = getConfig()
@@ -10,7 +10,7 @@ if __name__ == '__main__':
         print "[Error] Failed to read config file"
         sys.exit(1)
 
-    sqlclient = SQLClient(conf.get('user'), conf.get('password'), conf.get('host'), conf.get('dbname'))
+    sqlclient = MySQLClient(conf.get('user'), conf.get('password'), conf.get('host'), conf.get('dbname'))
     sqlclient.create_tables()   
     sys.exit(0)
 
