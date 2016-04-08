@@ -1,9 +1,6 @@
-# apt-get install python-mysqldb
-# pip install python-daemon, sqlalchemy
+# pip install MySQL-python sqlalchemy
 import sys
 import time
-
-from daemon import runner
 
 from modules.reader import getConfig, getStockList
 from modules.crawler import Crawler
@@ -12,21 +9,13 @@ from modules.logger import Logger
 
 
 class Worker(object):
-    def __init__(self, crawler, dbclient, interval=60):
-        self.stdin_path = '/dev/null'
-        self.stdout_path = '/dev/tty'
-        self.stderr_path = '/dev/tty'
-        self.pidfile_path = '/var/run/stock.pid'
-        self.pidfile_timeout = 3
+    def __init__(self, crawler, dbclient, interval=30):
         self.crawler = crawler
         self.dbclient = dbclient
         self.interval = interval
 
     def run(self):
-        logger.info('------------------ STOCK WORKER START ------------------')
-
         while True:
-            logger.info('------------------ STOCK WORKER START ------------------')
             start_at = time.time()
             self.dbclient.commit(self.crawler.run())
             idle = self.interval - (time.time() - start_at)
@@ -56,12 +45,5 @@ if __name__ == '__main__':
     dbclient = MySQLClient(
         conf.get('user'), conf.get('password'), conf.get('host'),
         conf.get('dbname'))
-    logger.info('------------------ STOCK WORKER START ------------------')
     worker = Worker(crawler, dbclient, interval=conf.get('interval'))
-    logger.info('------------------ STOCK WORKER START ------------------')
-    daemon_runner = runner.DaemonRunner(worker)
-    logger.info('------------------ STOCK WORKER START ------------------')
-    daemon_runner.daemon_context.files_preserve = [handler.stream]
-    logger.info('------------------ STOCK WORKER START ------------------')
-    daemon_runner.do_action()
-    logger.info('------------------ STOCK WORKER START ------------------')
+    worker.run()
