@@ -11,12 +11,11 @@ class TWSEAPIClient(object):
 
     def __init__(self, url, query, timeout=10):
         self.url = url
-	self.query = query
+        self.query = query
         self.timeout = timeout
         self.client = requests.session()
 
     def get(self):
-
         try:
             self.client.get(self.url, timeout=self.timeout)
             res = self.client.get(self.url + self.query, timeout=self.timeout)
