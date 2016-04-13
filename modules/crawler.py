@@ -2,49 +2,32 @@ import requests
 import json
 import time
 
+from modules.twse_api_client import TWSEAPIClient
 from modules.logger import Logger
 
 logger, _ = Logger.get_instance()
 
-
 class Crawler(object):
-    def __init__(self, url, stocks, count=100, timeout=10):
-        self.url = url
-        self.stocks = stocks
-        self.client = requests.session()
-        self.count = count
-        self.timeout = timeout
 
-    def run(self):
+    def __init__(self, url, stocks, count=100):
+        self.twse_api_clients = list()
         idx = 0
-        length = len(self.stocks)
-        msgArrays = list()
+        length = len(stocks)
 
         while idx < length:
-            url = self.url + '|'.join(self.stocks[idx:idx + self.count])
-            idx += self.count
+            query = '|'.join(stocks[idx:idx + count])
+            idx = idx + count
+            self.twse_api_clients.append(TWSEAPIClient(url, query))
 
-            try:
-                self.client.get(self.url, timeout=self.timeout)
-                res = self.client.get(url, timeout=self.timeout)
-            except Exception as e:
-                logger.warning('(X) Timeout %s', url)
-            else:
-                if res.status_code == 200:
-                    msgArray = json.loads(res.content).get('msgArray')
+    def run(self):
+        msgArrays = list()
 
-                    if msgArray:
-                        logger.debug('(V) Retrieve %s/%s from %s',
-                                     len(msgArray), self.count, url)
-                        msgArrays.extend(msgArray)
-                    else:
-                        logger.warning('(X) Retrieve %s/%s from %s',
-                                       len(msgArray), self.count, url)
-                else:
-                    logger.warning('(X) Status code %s from %s',
-                                   res.status_code, url)
+        for twse_api_client in self.twse_api_clients:
+            result, msgArray = twse_api_client.get()
+        
+            if result:
+                msgArrays.extend(msgArray)
 
-        logger.info('Retrieve stocks %s/%s', len(msgArrays), length)
         return self.__convert(msgArrays)
 
     def __convert(self, msgArrays):
