@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.sql import select
+from sqlalchemy.sql import select, and_, or_, not_
 from tables import *
 
 from modules.logger import Logger
@@ -16,13 +16,14 @@ class MySQLClient(object):
     def create_tables(self):
         metadata.create_all(self.engine)
 
-    def commit(self, stocks):
+    def commit_latest(self, stocks):
         conn = self.engine.connect()
 
-        for number, stock in stocks.items():
+        for stock in stocks:
             if not stock.get('record_time'):
                 continue
 
+            number = stock.get('number')
             stmt = select([latest_stock_info]).where(latest_stock_info.c.number
                                                      == number)
 
@@ -58,3 +59,24 @@ class MySQLClient(object):
                                  stock)
 
         conn.close()
+
+    def commit_history(self, stocks):
+        conn = self.engine.connect()
+
+        for stock in stocks:
+            if not stock.get('record_time'):
+                continue
+
+            number = stock.get('number')
+            stmt = select([stock_history]).where(and_(\
+                stock_history.c.number == number,\
+                stock_history.c.record_time == stock.get('record_time')))
+
+            if not conn.execute(stmt).fetchone():
+                try:
+                    conn.execute(stock_history.insert(), [stock])
+                except Exception as e:
+                    logger.error('Failed to insert stock info: %s, %s', e, stock)
+
+        conn.close()
+

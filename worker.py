@@ -17,7 +17,7 @@ class Worker(object):
     def run(self):
         while True:
             start_at = time.time()
-            self.dbclient.commit(self.crawler.run())
+            self.dbclient.commit_latest(self.crawler.run())
             idle = self.interval - (time.time() - start_at)
 
             if idle > 0:

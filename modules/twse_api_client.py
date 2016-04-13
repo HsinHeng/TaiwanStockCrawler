@@ -18,6 +18,7 @@ class TWSEAPIClient(object):
     def get(self):
         try:
             self.client.get(self.url, timeout=self.timeout)
+	    logger.debug('fetch data from %s', self.url + self.query)
             res = self.client.get(self.url + self.query, timeout=self.timeout)
         except Exception as e:
             logger.warning('(X) Timeout %s', self.url + self.query)
