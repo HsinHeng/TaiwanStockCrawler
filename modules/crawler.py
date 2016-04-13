@@ -10,19 +10,21 @@ logger, _ = Logger.get_instance()
 class Crawler(object):
 
     def __init__(self, url, stocks, count=100):
-        self.twse_api_clients = list()
+        self.url = url
+        self.querys = list()
         idx = 0
         length = len(stocks)
 
         while idx < length:
             query = '|'.join(stocks[idx:idx + count])
+            self.querys.append(query)
             idx = idx + count
-            self.twse_api_clients.append(TWSEAPIClient(url, query))
 
     def run(self):
         msgArrays = list()
 
-        for twse_api_client in self.twse_api_clients:
+        for query in self.querys:
+            twse_api_client = TWSEAPIClient(self.url, query)
             result, msgArray = twse_api_client.get()
         
             if result:
