@@ -25,12 +25,11 @@ if __name__ == '__main__':
     dbclient = MySQLClient(conf.user, conf.password, conf.host, conf.dbname)
     dbclient.create_tables()
 
-    '''
     tse_stock = TseStock(conf.tse_stock_list)
     otc_stock = OtcStock(conf.otc_stock_list)
     dbclient.commit_latest(tse_stock.data + otc_stock.data)
-    '''
 
+    '''
     while True:
         start_at = time.time()
         logger.info('Start to fetch data at %s', start_at)
@@ -45,3 +44,4 @@ if __name__ == '__main__':
             time.sleep(idle)
 
     sys.exit(0)
+    '''
