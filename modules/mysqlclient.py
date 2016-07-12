@@ -4,7 +4,7 @@ from tables import *
 
 from modules.logger import Logger
 
-logger, _ = Logger.get_instance()
+logger = Logger.get_instance()
 
 
 class MySQLClient(object):
