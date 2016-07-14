@@ -8,6 +8,7 @@ from modules.config_reader import ConfigReader
 from modules.mysqlclient import MySQLClient
 from modules.tse_stock import TseStock
 from modules.otc_stock import OtcStock
+from modules.taiex_tpex_stock import TaiexTpexStock
 
 CONF_FILE_PATH = 'config/stock.conf'
 
@@ -25,9 +26,13 @@ if __name__ == '__main__':
     dbclient = MySQLClient(conf.user, conf.password, conf.host, conf.dbname)
     dbclient.create_tables()
 
+    taiex_tpex_stock = TaiexTpexStock()
     tse_stock = TseStock(conf.tse_stock_list)
     otc_stock = OtcStock(conf.otc_stock_list)
-    dbclient.commit_latest(tse_stock.data + otc_stock.data)
+    data = taiex_tpex_stock.data + tse_stock.data + otc_stock.data
+    #data = taiex_tpex_stock.data
+    dbclient.commit_latest(data)
+    dbclient.commit_history(data)
 
     '''
     while True:

@@ -11,7 +11,7 @@ class TwseClient(object):
     COUNT = 100
     TIMEOUT = 10
 
-    def __init__(self, numbers):
+    def __init__(self, numbers=None):
         if type(numbers) is int:
             numbers = [numbers]
 
@@ -25,11 +25,13 @@ class TwseClient(object):
         while idx < length:
             query_string = '|'.join(numbers[idx:idx + self.COUNT])
             idx = idx + self.COUNT
+            now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
             try:
+                print "[Info] Start to fetch data at %s" %now
                 raw = self.get(query_string)
             except Exception as e:
-                print e
+                print "[Warn] %s" %e
                 continue
 
             self.raw.extend(raw)
@@ -80,6 +82,7 @@ class TwseClient(object):
 
             data.append({
                 'number': number,
+                'type': row.get('ex'),
                 'name': row.get('n'),
                 'latest_price': row.get('z', -1),
                 'highest_price': row.get('h', -1),
