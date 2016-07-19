@@ -26,8 +26,9 @@ if __name__ == '__main__':
 
     dbclient = MySQLClient(conf.user, conf.password, conf.host, conf.dbname)
     dbclient.create_tables()
-    
-    date_from = date(2016, 7, 18)
+ 
+    datetime = conf.date_from.split('/')
+    date_from = date(int(datetime[0]), int(datetime[1]), int(datetime[2]))
     taiex_tpex_stock = TaiexTpexStock(None, date_from, dbclient)
     tse_stock = TseStock(conf.tse_stock_list, date_from, dbclient)
     otc_stock = OtcStock(conf.otc_stock_list, date_from, dbclient)
