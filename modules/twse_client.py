@@ -13,44 +13,71 @@ class TwseClient(object):
     TIMEOUT = 10
 
     def __init__(self, numbers, date_from=None, dbclient=None):
-        if type(numbers) is int:
-            numbers = [numbers]
+        ''' date_from is date(2016, 4, 1)
+        '''
 
-        if date_from is not None:
-            # date_from: date(2016, 4, 1)
-            dd = date.today() - timedelta(1) - date_from
+        if type(numbers) is int or type(numbers) is str:
+            numbers = [numbers]
 
         self.raw = []
         self.data = []
         self.numbers = numbers
         numbers = self.num2urlqs(numbers)
         length = len(numbers)
-        idx = 0
 
-        while idx < length:
-            query_base = '|'.join(numbers[idx:idx + self.COUNT])
-            idx = idx + self.COUNT
+        if date_from is None:
+            idx = 0
+            now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+            print "[Info] %s start to fetch latest data at %s" %(self.__class__.__name__, now)
 
-            try:
-                if not date_from:
-                    raw = self._get(query_base)
-                    self.raw.extend(raw)
+            while idx < length:
+                query = '|'.join(numbers[idx:idx + self.COUNT])
+                idx = idx + self.COUNT
+
+                try:
+                    raw = self._get(query)
+                except Exception as e:
+                    print "[Warn] %s" %e
                 else:
-                    raws = []
+                    self.raw.extend(raw)
 
-                    for i in range(dd.days + 1):
-                        d = (date_from + timedelta(days=i)).strftime('%Y%m%d')
-                        query = query_base + '&d=' + d
+            self.data = self.raw2data(self.raw)
+        else:
+            dd = date.today() - timedelta(1) - date_from
+            
+            for i in range(dd.days + 1):
+                day = date_from + timedelta(days=i)
+                
+                if day.isoweekday() == 6 or day.isoweekday() == 7:
+                    continue
+
+                now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+                print "[Info] %s start to fetch data of %s at %s" %(self.__class__.__name__, day, now)
+                idx = 0
+
+                while idx < length:
+                    d = day.strftime('%Y%m%d')
+                    query = '|'.join(numbers[idx:idx + self.COUNT]) + '&d=' + d
+                    idx = idx + self.COUNT
+
+                    try:
                         raw = self._get(query)
-                        raws.extend(raw)
+                    except Exception as e:
+                        print "[Warn] %s" %e
+                        continue
 
-                    data = self.raw2data(raws)
-                    dbclient.commit_history(data)
-            except Exception as e:
-                print e
-                continue
+                    try:
+                        if dbclient is None:
+                            self.raw.extend(raw)
+                        else:
+                            data = self.raw2data(raw)
+                            dbclient.commit_history(data)
+                    except Exception as e:
+                        print "[Warn] %s" %e
+                        continue
 
-        self.data = self.raw2data(self.raw)
+            if dbclient is None:
+                self.data = self.raw2data(self.raw)
     
     def num2urlqs(self, numbers):
         pass
@@ -96,6 +123,7 @@ class TwseClient(object):
 
             data.append({
                 'number': number,
+                'type': row.get('ex'),
                 'name': row.get('n'),
                 'latest_price': row.get('z', -1),
                 'highest_price': row.get('h', -1),

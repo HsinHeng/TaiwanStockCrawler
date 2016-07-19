@@ -7,6 +7,7 @@ from datetime import date
 from modules.config_reader import ConfigReader
 from modules.tse_stock import TseStock
 from modules.otc_stock import OtcStock
+from modules.taiex_tpex_stock import TaiexTpexStock
 from modules.mysqlclient import MySQLClient
 from modules.logger import Logger
 
@@ -26,6 +27,7 @@ if __name__ == '__main__':
     dbclient = MySQLClient(conf.user, conf.password, conf.host, conf.dbname)
     dbclient.create_tables()
     
-    d = date(2016, 7, 18)
-    tse_stock = TseStock(conf.tse_stock_list, d, dbclient)
-    otc_stock = OtcStock(conf.otc_stock_list, d, dbclient)
+    date_from = date(2016, 7, 18)
+    taiex_tpex_stock = TaiexTpexStock(None, date_from, dbclient)
+    tse_stock = TseStock(conf.tse_stock_list, date_from, dbclient)
+    otc_stock = OtcStock(conf.otc_stock_list, date_from, dbclient)
