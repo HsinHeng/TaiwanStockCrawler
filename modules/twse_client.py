@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+from datetime import date, timedelta
 
 from modules.logger import Logger
 
@@ -11,9 +12,13 @@ class TwseClient(object):
     COUNT = 100
     TIMEOUT = 10
 
-    def __init__(self, numbers):
+    def __init__(self, numbers, date_from=None, dbclient=None):
         if type(numbers) is int:
             numbers = [numbers]
+
+        if date_from is not None:
+            # date_from: date(2016, 4, 1)
+            dd = date.today() - timedelta(1) - date_from
 
         self.raw = []
         self.data = []
@@ -23,23 +28,34 @@ class TwseClient(object):
         idx = 0
 
         while idx < length:
-            query_string = '|'.join(numbers[idx:idx + self.COUNT])
+            query_base = '|'.join(numbers[idx:idx + self.COUNT])
             idx = idx + self.COUNT
 
             try:
-                raw = self.get(query_string)
+                if not date_from:
+                    raw = self._get(query_base)
+                    self.raw.extend(raw)
+                else:
+                    raws = []
+
+                    for i in range(dd.days + 1):
+                        d = (date_from + timedelta(days=i)).strftime('%Y%m%d')
+                        query = query_base + '&d=' + d
+                        raw = self._get(query)
+                        raws.extend(raw)
+
+                    data = self.raw2data(raws)
+                    dbclient.commit_history(data)
             except Exception as e:
                 print e
                 continue
 
-            self.raw.extend(raw)
-
         self.data = self.raw2data(self.raw)
-
+    
     def num2urlqs(self, numbers):
         pass
 
-    def get(self, query_string):
+    def _get(self, query_string):
         client = requests.session()
         url = self.TWSE_API_URL + query_string
 
