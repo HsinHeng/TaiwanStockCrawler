@@ -43,6 +43,8 @@ class TwseClient(object):
 
             self.data = self.raw2data(self.raw)
         else:
+            datetime = date_from.split('/')
+            date_from = date(int(datetime[0]), int(datetime[1]), int(datetime[2]))
             dd = date.today() - timedelta(1) - date_from
             
             for i in range(dd.days + 1):
