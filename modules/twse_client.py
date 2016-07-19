@@ -15,8 +15,7 @@ class TwseClient(object):
     def __init__(self, numbers, date_from=None, dbclient=None):
         ''' date_from is date(2016, 4, 1)
         '''
-
-        if type(numbers) is int or type(numbers) is str:
+        if type(numbers) is str:
             numbers = [numbers]
 
         self.raw = []
