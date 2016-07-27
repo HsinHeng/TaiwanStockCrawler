@@ -80,3 +80,19 @@ class MySQLClient(object):
 
         conn.close()
 
+    def commit_news(self, news):
+        conn = self.engine.connect()
+
+        for new in news:
+            title = new.get('title')
+            stmt = select([latest_news]).where(latest_news.c.title == title)
+
+            if not conn.execute(stmt).fetchone():
+                try:
+                    conn.execute(latest_news.insert(), [new])
+                except Exception as e:
+                    logger.error('Failed to insert news: %s, %s', e, new)
+        
+        conn.close()
+
+        

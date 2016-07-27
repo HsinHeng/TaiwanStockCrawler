@@ -1,6 +1,17 @@
-from sqlalchemy import Table, Column, Integer, String, Float, MetaData, ForeignKey, DateTime
+from sqlalchemy import Table, Column, Integer, Text, String, Float, MetaData, ForeignKey, DateTime
 
 metadata = MetaData()
+latest_news = Table('latest_news', metadata,
+    Column('id', Integer, primary_key=True),
+    Column('title', String(128)),
+    Column('summary', Text),
+    Column('link', String(1024)),
+    Column('published', String(128)),
+    Column('count', Integer),
+    Column('updated_at', DateTime),
+    mysql_charset='utf8',
+)
+
 latest_stock_info = Table('latest_stock_info', metadata,
     Column('number', String(16), primary_key=True),
     Column('type', String(16), index=True),
