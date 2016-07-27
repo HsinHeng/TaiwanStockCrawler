@@ -22,7 +22,6 @@ class GoogleNews(object):
         self.data = []
         required_fields = { field: True for field in self.REQUIRED_FIELDS}
 
-
         for entry in res.get('entries'):
             data = {'updated_at': updated_at, 'count': 0}
                
