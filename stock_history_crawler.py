@@ -23,4 +23,4 @@ if __name__ == '__main__':
 
     db = MySQLClient(conf.user, conf.password, conf.host, conf.dbname)
     db.create_tables()
-    Stock(None, date_from=conf.date_from, db=db, log=log)
+    Stock(None, from_date=conf.from_date, db=db, log=log)

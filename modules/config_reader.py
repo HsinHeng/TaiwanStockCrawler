@@ -14,7 +14,7 @@ class ConfigReader(object):
             self.tse_stock_list_file = config.get('TW Stock', 'tse_stock_list_file')
             self.otc_stock_list_file = config.get('TW Stock', 'otc_stock_list_file')
             self.interval = int(config.get('TW Stock', 'interval'))
-            self.date_from = config.get('TW Stock History', 'date_from')
+            self.from_date = config.get('TW Stock History', 'from_date')
             self.keywords = config.get('Google News', 'keywords').split(',')
             self.user = config.get('MySQL', 'user')
             self.password = config.get('MySQL', 'password')
