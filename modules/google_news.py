@@ -2,35 +2,48 @@
 import feedparser
 import json
 import time
-
-from modules.logger import Logger
-
-logger = Logger.get_instance()
+import urllib
+import logging
 
 class GoogleNews(object):
-    GOOGLE_NEWS_URL = 'http://news.google.com?output=rss'
-    REQUIRED_FIELDS = ['title', 'summary', 'link', 'published']
+    default_log_path = '/tmp/google_news.log'
+    api_entry = 'http://news.google.com'
+    required_fields = ['title', 'summary', 'link', 'published']
 
-    def __init__(self, keyword):
+    def __init__(self, keyword, **kwargs):
+        self.log = kwargs.get('log') if kwargs.get('log') is not None else self._get_default_logging()
+
         try:
-            res = feedparser.parse(self.GOOGLE_NEWS_URL + '&q=' + keyword)
+            query_params = urllib.urlencode({'output': 'rss', 'q': keyword})
+            r = feedparser.parse(self.api_entry + '?' + query_params)
+            self.log.info('fetch data from %s', self.api_entry + '?' + query_params)
         except Exception as e:
+            self.log.warning('failed to get data from %s', self.api_entry + '?' + query_params)
             raise e
 
-        updated_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-        self.raw = res
-        self.data = []
-        required_fields = { field: True for field in self.REQUIRED_FIELDS}
+        self.raw = r
+        self.data = self._raw2data(self.raw)
 
-        for entry in res.get('entries'):
-            data = {'updated_at': updated_at, 'count': 0}
+    def _get_default_logging(self):
+        logging.basicConfig(filename=self.default_log_path, level=logging.DEBUG)
+        return logging
+
+    def _raw2data(self, raw): 
+        data = []
+        required_fields = {field: True for field in self.required_fields}
+        updated_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+
+        for entry in raw.get('entries'):
+            row = {'updated_at': updated_at, 'count': 0}
                
-            for key, value in entry.items(): 
-   
+            for key, value in entry.items():   
                 if required_fields.get(key) is None:
                     continue
                 
-                data.setdefault(key, value.strip())
+                row.setdefault(key, value.strip())
             
-            self.data.append(data)
+            data.append(row)
+
+        return data
+
 
