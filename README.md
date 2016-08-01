@@ -2,6 +2,8 @@
 
 This application is used to fetch the TSE(上市), OTC(上櫃) and TAIEX, TPEX(上市,上櫃指數), I will keep implement the new features and performance. Let's Start.
 
+# Feature
+High performance crawler via multiple threading and queue
 # module/stock.py
 ## Simple interface to fectch all TSE, OTC, TAIEX and TPEX
     stock = Stock()
