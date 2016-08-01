@@ -16,13 +16,13 @@ This application is used to fetch the TSE(上市), OTC(上櫃) and TAIEX, TPEX(�
 
 
 ## Simple interface to store data
-   stock = Stock(['0050'])
-   # print a list of stock numbers you want 
-   print stock.numbers
-   # print a list of raw data
-   print stock.raw
-   # print a list of readable data
-   print stock.data
+    stock = Stock(['0050'])
+    # print a list of stock numbers you want 
+    print stock.numbers
+    # print a list of raw data
+    print stock.raw
+    # print a list of readable data
+    print stock.data
 
 # Google News Crawler
 
