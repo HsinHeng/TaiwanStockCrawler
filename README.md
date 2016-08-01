@@ -43,7 +43,9 @@ This application is used to fetch the RSS data of google news api, I will keep i
   
 ## Simple interface to store data
     news = GoogleNews('台股')
+    
     # print a list of raw data
     print news.raw
+    
     # print a list of readable data
     print news.data
