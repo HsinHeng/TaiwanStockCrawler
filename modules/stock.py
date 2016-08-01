@@ -2,6 +2,8 @@ import requests
 import json
 import time
 import logging
+from threading import Thread
+from Queue import Queue
 from datetime import datetime, date, timedelta
 
 class Stock(object):
@@ -14,7 +16,10 @@ class Stock(object):
     timeout = 10
 
     def __init__(self, numbers=None, **kwargs):
-        ''' date_from is date(2016, 4, 1) '''
+        ''' supported argument:
+            from_data, log, log.
+        '''
+        self.queue = Queue()
         self.numbers = numbers
         self.from_date = kwargs.get('from_date')
         self.db = kwargs.get('db')
@@ -23,10 +28,10 @@ class Stock(object):
 
         if self.from_date is None:
             self.raw = self._get_latest()
-            self.data = self._raw2data(self.raw)
         else:
             self.raw = self._get_from_date()
-            self.data = self._raw2data(self.raw)
+
+        self.data = self._raw2data(self.raw)
      
     def _get_default_logging(self):
         logging.basicConfig(filename=self.default_log_path, level=logging.DEBUG)
@@ -57,59 +62,68 @@ class Stock(object):
 
     def _get_latest(self):
         self.log.info("start to fetch latest data at %s", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
-        data = []
+        raw = []
+        threads = []
         idx = 0
         length = len(self.query_params)
 
         while idx < length:
             ex_ch = '|'.join(self.query_params[idx:idx + self.query_count])
             idx = idx + self.query_count
+            thread = Thread(target=self._get, args=({'ex_ch': ex_ch},))
+            thread.start()
+            threads.append(thread)
 
-            try:
-                raw = self._get({'ex_ch': ex_ch})
-            except Exception as e:
-                self.log.warning("$s", e)
-            else:
-                data.extend(raw)
+        for thread in threads:
+            thread.join()
 
-        return data
+        while not self.queue.empty():
+            raw.extend(self.queue.get())
+
+        self.log.info('Totally retrieve %s stock information', len(raw))
+        return raw
 
     def _get_from_date(self):
-        data = []
+        raws = []
         from_date = datetime.strptime(self.from_date, '%Y-%m-%d').date()
         dd = date.today() - from_date
         length = len(self.query_params)
-            
+
         for i in range(dd.days + 1):
             day = from_date + timedelta(days=i)
                 
             if day.isoweekday() == 6 or day.isoweekday() == 7:
                 continue
 
-            self.log.info("start to fetch history data at %s", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
+            self.log.info("start to fetch %s history data at %s", day.strftime('%Y-%m-%d'), time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
             idx = 0
+            threads = []
+            raw = []
 
             while idx < length:
                 d = day.strftime('%Y%m%d')
                 ex_ch = '|'.join(self.query_params[idx:idx + self.query_count])
                 idx = idx + self.query_count
+                thread = Thread(target=self._get, args=({'ex_ch': ex_ch, 'd': d},))
+                thread.start()
+                threads.append(thread)
 
-                try:
-                    raw = self._get({'ex_ch': ex_ch, 'd': d})
-                except Exception as e:
-                    self.log.warning("$s", e)
-                    continue
+            for thread in threads:
+                thread.join()
 
-                try:
-                    if not self.db:
-                        data.extend(raw)
-                    else:
-                        self.db.commit_history(self._raw2data(raw))
-                except Exception as e:
-                    self.log.warning("$s", e)
-                    continue
+            while not self.queue.empty():
+                raw.extend(self.queue.get())
 
-        return data
+            try:
+                if not self.db:
+                    raws.extend(raw)
+                else:
+                    self.db.commit_history(self._raw2data(raw))
+            except Exception as e:
+                self.log.warning("%s", e)
+                continue
+
+        return raws
 
     def _get(self, params):
         client = requests.session()
@@ -119,17 +133,17 @@ class Stock(object):
             r = client.get(self.api_entry, params=params, timeout=self.timeout)
             self.log.debug('fetch data from %s', r.url)
         except Exception as e:
-            self.log.warning('(X) Timeout %s', r.url)
+            self.log.warning('(X) Timeout %s', params)
             raise e
 
         try:
             raw = json.loads(r.content).get('msgArray')
         except Exception as e:
-            self.log.warning('(X) Retrun Data is not JSON', r.url)
-            raise e
+            self.log.warning('(X) Retrun Data is not JSON', params)
+            raise e 
 
         self.log.info('Retrieve %s stock information', len(raw))
-        return raw
+        self.queue.put(raw)
 
     def _raw2data(self, raw):
         data = []
