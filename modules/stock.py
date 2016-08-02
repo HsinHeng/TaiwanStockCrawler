@@ -38,12 +38,14 @@ class Stock(object):
         return logging
 
     def _to_query_params(self, numbers):
+        idx = 0    
         query_params = []
+        query_strings = []
 
         if numbers is None:
-            query_params.extend([value for key, value in self.index_list.items()])
-            query_params.extend(['tse_{}.tw'.format(number) for number in self.tse_list]) 
-            query_params.extend(['otc_{}.tw'.format(number) for number in self.otc_list])  
+            query_strings.extend([value for key, value in self.index_list.items()])
+            query_strings.extend(['tse_{}.tw'.format(number) for number in self.tse_list]) 
+            query_strings.extend(['otc_{}.tw'.format(number) for number in self.otc_list])  
         else:
             for number in numbers:
                 if self.index_list.get(number) is not None:
@@ -56,7 +58,14 @@ class Stock(object):
                     self.error = 'Invalid stock number ' + number
                     continue
 
-                query_params.append(number)
+                query_strings.append(number)
+
+        length = len(query_strings)
+
+        while idx < length:
+            ex_ch = '|'.join(query_strings[idx:idx + self.query_count])
+            query_params.append(ex_ch)
+            idx += self.query_count
 
         return query_params
 
@@ -64,12 +73,8 @@ class Stock(object):
         self.log.info("start to fetch latest data at %s", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
         raw = []
         threads = []
-        idx = 0
-        length = len(self.query_params)
 
-        while idx < length:
-            ex_ch = '|'.join(self.query_params[idx:idx + self.query_count])
-            idx = idx + self.query_count
+        for ex_ch in self.query_params:
             thread = Thread(target=self._get, args=({'ex_ch': ex_ch},))
             thread.start()
             threads.append(thread)
@@ -87,7 +92,6 @@ class Stock(object):
         raws = []
         from_date = datetime.strptime(self.from_date, '%Y-%m-%d').date()
         dd = date.today() - from_date
-        length = len(self.query_params)
 
         for i in range(dd.days + 1):
             day = from_date + timedelta(days=i)
@@ -96,14 +100,11 @@ class Stock(object):
                 continue
 
             self.log.info("start to fetch %s history data at %s", day.strftime('%Y-%m-%d'), time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
-            idx = 0
             threads = []
             raw = []
+            d = day.strftime('%Y%m%d')
 
-            while idx < length:
-                d = day.strftime('%Y%m%d')
-                ex_ch = '|'.join(self.query_params[idx:idx + self.query_count])
-                idx = idx + self.query_count
+            for ex_ch in self.query_params:
                 thread = Thread(target=self._get, args=({'ex_ch': ex_ch, 'd': d},))
                 thread.start()
                 threads.append(thread)
