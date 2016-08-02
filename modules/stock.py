@@ -115,14 +115,14 @@ class Stock(object):
             while not self.queue.empty():
                 raw.extend(self.queue.get())
 
-            try:
-                if not self.db:
-                    raws.extend(raw)
-                else:
+            if not self.db:
+                raws.extend(raw)
+            else:
+                try:
                     self.db.commit_history(self._raw2data(raw))
-            except Exception as e:
-                self.log.warning("%s", e)
-                continue
+                except Exception as e:
+                    self.log.warning("%s", e)
+                    continue
 
         return raws
 
