@@ -27,11 +27,11 @@ class Stock(object):
         query_params = self._to_query_params(numbers)
 
         if self.from_date is None:
-            self.raw = self._get_latest(query_params)
+            self._raw = self._get_latest(query_params)
         else:
-            self.raw = self._get_from_date(query_params)
+            self._raw = self._get_from_date(query_params)
 
-        self.data = self._raw2data(self.raw)
+        self._data = self._raw2data(self._raw)
      
     def _get_default_logging(self):
         logging.basicConfig(filename=self.DEFAULT_LOG_PATH, level=logging.DEBUG)
@@ -55,6 +55,14 @@ class Stock(object):
             return self.TSE_LIST + self.OTC_LIST + self.INDEX_LIST.keys()
 
         return self._numbers 
+
+    @property
+    def raw(self):
+        return self._raw
+
+    @property
+    def data(self):
+        return self._data
 
     def _to_query_params(self, numbers):
         idx = 0    
