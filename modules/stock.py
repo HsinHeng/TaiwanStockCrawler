@@ -16,19 +16,20 @@ class Stock(object):
     TIMEOUT = 10
 
     def __init__(self, numbers=None, **kwargs):
-        ''' supported argument:
-            from_data, log, log.
+        ''' supported arguments:
+            from_data, to_data and log.
         '''
         self.queue = Queue()
-        self.from_date = kwargs.get('from_date')
         self.db = kwargs.get('db')
-        self.log = kwargs.get('log') if kwargs.get('log') is not None else self._get_default_logging()
-        query_params = self._to_query_params(numbers)
+        self.log = kwargs.get('log') if kwargs.get('log') is not None else self._get_default_log()
+        query_params = self._num2queryparam(numbers)
+        from_date = kwargs.get('from_date')
+        to_date = kwargs.get('to_date')
 
-        if self.from_date is None:
+        if not from_date:
             self._raw = self._get_latest(query_params)
         else:
-            self._raw = self._get_from_date(query_params)
+            self._raw = self._get_between_dates(query_params, from_date, to_date)
 
         self._data = self._raw2data(self._raw)
     
@@ -65,11 +66,11 @@ class Stock(object):
     def data(self):
         return self._data
 
-    def _get_default_logging(self):
+    def _get_default_log(self):
         logging.basicConfig(filename=self.DEFAULT_LOG_PATH, level=logging.DEBUG)
         return logging
 
-    def _to_query_params(self, numbers):
+    def _num2queryparam(self, numbers):
         idx = 0    
         query_params = []
         query_strings = []
@@ -120,10 +121,15 @@ class Stock(object):
         self.log.info('Totally retrieve %s stock information', len(raw))
         return raw
 
-    def _get_from_date(self, query_params):
+    def _get_between_dates(self, query_params, from_date, to_date):
         raws = []
-        from_date = datetime.strptime(self.from_date, '%Y-%m-%d').date()
-        dd = date.today() - from_date
+        from_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+
+        if to_date:
+            to_date = datetime.strptime(to_date, '%Y-%m-%d').date()
+            dd = to_date - from_date
+        else:
+            dd = date.today() - from_date
 
         for i in range(dd.days + 1):
             day = from_date + timedelta(days=i)
@@ -172,11 +178,13 @@ class Stock(object):
         try:
             raw = json.loads(r.content).get('msgArray')
         except Exception as e:
-            self.log.warning('(X) Retrun Data is not JSON', params)
-            raise e 
+            self.log.warning('(X) Return Data is not JSON', params)
+            raise e
+
+        if raw:
+            self.queue.put(raw)
 
         self.log.info('Retrieve %s stock information', len(raw))
-        self.queue.put(raw)
 
     def _raw2data(self, raw):
         data = []
