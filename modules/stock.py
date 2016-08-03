@@ -184,15 +184,16 @@ class Stock(object):
 
         for row in raw:
             number = row.get('c')
+            latest_price = row.get('z')
 
-            if not number:
+            if not number or not latest_price:
                 continue
 
             data.append({
                 'number': number,
                 'type': row.get('ex'),
                 'name': row.get('n'),
-                'latest_price': row.get('z', -1),
+                'latest_price': latest_price,
                 'highest_price': row.get('h', -1),
                 'lowest_price': row.get('l', -1),
                 'opening_price': row.get('o', -1),
