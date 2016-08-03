@@ -20,7 +20,6 @@ class Stock(object):
             from_data, log, log.
         '''
         self.queue = Queue()
-        self._numbers = numbers
         self.from_date = kwargs.get('from_date')
         self.db = kwargs.get('db')
         self.log = kwargs.get('log') if kwargs.get('log') is not None else self._get_default_logging()
@@ -32,29 +31,31 @@ class Stock(object):
             self._raw = self._get_from_date(query_params)
 
         self._data = self._raw2data(self._raw)
-     
-    def _get_default_logging(self):
-        logging.basicConfig(filename=self.DEFAULT_LOG_PATH, level=logging.DEBUG)
-        return logging
+    
+    @staticmethod
+    def list(type):
+        supported_list = None
 
-    @property
-    def tse_list(self):
-        return self.TSE_LIST
+        if type == 'tse':
+            supported_list = Stock.TSE_LIST
+        elif type == 'otc':
+            supported_list = Stock.OTC_LIST
+        elif type == 'index':
+            supported_list = Stock.INDEX_LIST.keys()
+        
+        return supported_list
 
-    @property
-    def otc_list(self):
-        return self.OTC_LIST
+    '''
+    @staticmethod
+    def is_twse_open(day):
+        day = datetime.strptime(day, '%Y-%m-%d').date()
+        day_number = day.isoweekday()
 
-    @property
-    def index_list(self):
-        return self.INDEX_LIST.keys()       
+        if day_number == 6 or day_number == 7:
+            return False
 
-    @property
-    def numbers(self):
-        if self._numbers is None:
-            return self.TSE_LIST + self.OTC_LIST + self.INDEX_LIST.keys()
-
-        return self._numbers 
+        return True
+    '''
 
     @property
     def raw(self):
@@ -63,6 +64,10 @@ class Stock(object):
     @property
     def data(self):
         return self._data
+
+    def _get_default_logging(self):
+        logging.basicConfig(filename=self.DEFAULT_LOG_PATH, level=logging.DEBUG)
+        return logging
 
     def _to_query_params(self, numbers):
         idx = 0    
