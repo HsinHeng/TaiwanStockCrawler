@@ -7,16 +7,15 @@ This application is used to fetch the TSE(上市), OTC(上櫃) and TAIEX, TPEX(�
 2. Enable to fetch TSE, OTC, TAIEX and TPEX data.
 3. Enable to fetch history data.
 
-
-# module/stock.py
 ## Simple interface to fectch TSE, OTC, TAIEX and TPEX data
-    # fetch all
+    # module/stock.py
+    # fetch all data
     stock = Stock()
 
-    # fetch specfic 
+    # fetch specfic data
     stock = Stock(['0050', '1258', 'taiex', 'tpex'])
     
-    # fetch from date
+    # fetch history data from date
     stock = Stock(['0050'], from_date='2016-08-02')
     stock = Stock(None, from_date='2016-08-02')
 
@@ -32,7 +31,7 @@ This application is used to fetch the TSE(上市), OTC(上櫃) and TAIEX, TPEX(�
     
     stock = Stock(['0050'])
     
-    # print a list of retrieved raw data
+    # print a list of fectching raw data
     print stock.raw
     
     [{
@@ -76,7 +75,7 @@ This application is used to fetch the TSE(上市), OTC(上櫃) and TAIEX, TPEX(�
       "ps": "62"
     }]
     
-    # print a list of fectched readable data
+    # print a list of fectching readable data
     print stock.data
 
 # Google News Crawler
