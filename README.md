@@ -9,17 +9,16 @@ This application is used to fetch the TSE(上市), OTC(上櫃) and TAIEX, TPEX(�
 
 
 # module/stock.py
-## Simple interface to fectch all TSE, OTC, TAIEX and TPEX
+## Simple interface to fectch TSE, OTC, TAIEX and TPEX data
+    # fetch all
     stock = Stock()
 
-## Fectch specfic stocks
+    # fetch specfic 
     stock = Stock(['0050', '1258', 'taiex', 'tpex'])
-
-## Fectch stock history from date
+    
+    # fetch from date
     stock = Stock(['0050'], from_date='2016-08-02')
-    # Fetch all stocks
     stock = Stock(None, from_date='2016-08-02')
-
 
 ## Simple interfaces
     # print supported tse stocks (上市) 
