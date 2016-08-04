@@ -12,7 +12,7 @@ This application is used to fetch the TSE(上市), OTC(上櫃) and TAIEX, TPEX(�
 ## Simple interface to fectch all TSE, OTC, TAIEX and TPEX
     stock = Stock()
 
-## Fectch specfic numbers of stock
+## Fectch specfic stocks
     stock = Stock(['0050', '1258', 'taiex', 'tpex'])
 
 ## Fectch stock history from date
@@ -21,16 +21,22 @@ This application is used to fetch the TSE(上市), OTC(上櫃) and TAIEX, TPEX(�
     stock = Stock(None, from_date='2016-08-02')
 
 
-## Simple interface to store data
+## Simple interfaces
+    # print supported tse stocks (上市) 
+    print Stock.list('tse')
+    
+    # print supported otc stocks (上櫃)
+    print Stock.list('otc')
+    
+    # print supported index (指數)
+    print Stock.list('index')
+    
     stock = Stock(['0050'])
     
-    # print a list of stock numbers you want 
-    print stock.numbers
-    
-    # print a list of raw data
+    # print a list of retrieved raw data
     print stock.raw
     
-    # print a list of readable data
+    # print a list of fectched readable data
     print stock.data
 
 # Google News Crawler
