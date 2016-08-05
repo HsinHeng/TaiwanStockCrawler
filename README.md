@@ -75,13 +75,10 @@ This application is used to fetch the date of tse(上市), otc(上櫃) and taiex
 
 # Google News Crawler
 
-This application is used to fetch the RSS data of google news api, I will keep implement the new feature and performance in the future. Let's Start.
+This application is used to fetch RSS data from google news api, I will keep implement the new features and performance in the future. Let's Start.
 
-# module/google_news.py
-## Simple interface to fectch data from google news api
-    news = GoogleNews('台股')
-  
-## Simple interface to store data
+## Simple interfaces
+### modules/google_news.py
     news = GoogleNews('台股')
     
     # print a list of raw data
