@@ -8,23 +8,17 @@ This application is used to fetch the date of tse(上市), otc(上櫃) and taiex
 3. Enable to fetch history stock data.
 
 ## Simple Interfaces 
-### module/stock.py
-    # fetch all data
+### modules/stock.py
+    # fetch all stock data
     stock = Stock()
 
-    # fetch specfic data
+    # fetch specfic stock data by numbers
     stock = Stock(['0050', '1258', 'taiex', 'tpex'])
     
-    # fetch history data between dates
+    # fetch history stock data between dates
     stock = Stock(['0050'], from_date='2016-08-02')
     stock = Stock(['0050'], from_date='2016-08-02', to_date='2016-08-20')
     stock = Stock(None, from_date='2016-08-02')
-
-## Simple interfaces
-    # print supported stock list
-    print Stock.list('tse') (上市) 
-    print Stock.list('otc') (上櫃)
-    print Stock.list('index') (大權指數)
     
     # print a list of fectching raw data
     stock = Stock(['0050'])
@@ -73,6 +67,11 @@ This application is used to fetch the date of tse(上市), otc(上櫃) and taiex
     
     # print a list of fectching readable data
     print stock.data
+    
+    # print supported stock list
+    print Stock.list('tse') (上市) 
+    print Stock.list('otc') (上櫃)
+    print Stock.list('index') (大權指數)
 
 # Google News Crawler
 
