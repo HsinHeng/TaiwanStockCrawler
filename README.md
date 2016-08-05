@@ -3,7 +3,7 @@
 This application is used to fetch the TSE(上市), OTC(上櫃) and TAIEX, TPEX(上市,上櫃指數), I will keep implement the new features and performance. Let's Start.
 
 # Feature
-1. High performance, fetch 1556 data durgin 1 sec. (implemented by multi-threading and Queue)
+1. High performance, fetch 1556 data during 1 sec. (implemented by multi-thread and queue)
 2. Enable to fetch TSE, OTC, TAIEX and TPEX data.
 3. Enable to fetch history data.
 
@@ -15,23 +15,19 @@ This application is used to fetch the TSE(上市), OTC(上櫃) and TAIEX, TPEX(�
     # fetch specfic data
     stock = Stock(['0050', '1258', 'taiex', 'tpex'])
     
-    # fetch history data from date
+    # fetch history data between dates
     stock = Stock(['0050'], from_date='2016-08-02')
+    stock = Stock(['0050'], from_date='2016-08-02', to_date='2016-08-20')
     stock = Stock(None, from_date='2016-08-02')
 
 ## Simple interfaces
-    # print supported tse stocks (上市) 
-    print Stock.list('tse')
-    
-    # print supported otc stocks (上櫃)
-    print Stock.list('otc')
-    
-    # print supported index (指數)
-    print Stock.list('index')
-    
-    stock = Stock(['0050'])
+    # print supported stock list
+    print Stock.list('tse') (上市) 
+    print Stock.list('otc') (上櫃)
+    print Stock.list('index') (大權指數)
     
     # print a list of fectching raw data
+    stock = Stock(['0050'])
     print stock.raw
     
     [{
