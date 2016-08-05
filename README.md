@@ -1,14 +1,14 @@
 # Taiwan Stock Crawler
 
-This application is used to fetch the TSE(上市), OTC(上櫃) and TAIEX, TPEX(上市,上櫃指數), I will keep implement the new features and performance. Let's Start.
+This application is used to fetch the date of tse(上市), otc(上櫃) and taiex and tpex (上市,上櫃大權指數), I will keep implement the new features and performance. Let's Start.
 
-# Feature
-1. High performance, fetch 1556 data during 1 sec. (implemented by multi-thread and queue)
-2. Enable to fetch TSE, OTC, TAIEX and TPEX data.
-3. Enable to fetch history data.
+# Features
+1. High performance crawler, it's only require 1 sec to fetch all stock data. (code are implemented by multi-thread and queue)
+2. Enable to fetch latest stock data.
+3. Enable to fetch history stock data.
 
-## Simple interface to fectch TSE, OTC, TAIEX and TPEX data
-    # module/stock.py
+## Simple Interfaces 
+### module/stock.py
     # fetch all data
     stock = Stock()
 
