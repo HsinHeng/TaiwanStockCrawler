@@ -1,6 +1,6 @@
 # Taiwan Stock Crawler
 
-This application is used to fetch the date of tse(上市), otc(上櫃) and taiex and tpex (上市,上櫃大權指數), I will keep implement the new features and performance. Let's Start.
+This application is used to fetch the data of tse(上市), otc(上櫃) and taiex and tpex (上市,上櫃大權指數), I will keep implement the new features and performance. Let's Start.
 
 # Features
 1. High performance crawler, it's only require 1 sec to fetch all stock data. (code are implemented by multi-thread and queue)
